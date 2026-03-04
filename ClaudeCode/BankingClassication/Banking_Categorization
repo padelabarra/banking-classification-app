@@ -1,0 +1,54 @@
+On the current folder on the current, I want to create an application that takes a CSV file of my expenses and revenue, categorize each line into revenue or expense, and into pre-defined categories, allowing me to track my total expesnes and revenue on a monthly basis. 
+I also want to have dashboards to see reporting and analysis of how I expeding my money.
+
+We are going to build this step by step:
+A. Built the algorithm that classifies the expenditures and revenues into the multiple categories
+B. Building an interface that is able to take new CSV files into the data, and categories those new expenses.
+C. Integrating the reporting and dashboard logic into a website, for me to make quick analysis if we are overspeding or not
+
+As a current MVP, I have create a Excel file (xlsx) that already tracks my revenues and expenses on a monthly basis, and also has the data to train the classification model for the future. 
+On the Excel these are the following tabs:
+1. Metrics: It has only the information of the last date of the data that the excel has:
+    Cuenta Corriente: data related to my checkings account, is updated until the date 2/10/2026
+    Tarjeta Credito Pedro: data related to my credit card, is updated until the date 2/7/2026
+    Tarjeta Credito Renatta: data related to my wife's credit card, is updated until the date 2/7/2026
+2. Gasto_BofA: Sheet that has the historical data, the categorization, if was a revenue or an expense, the year, the month, and the source
+3. Tracker: It shows the expense/revenue for each category, is a way if I have deviated from the normal expenses I should have according to my budget.
+4. UCLA: is the budget I created before the MBA to have a overarching sense of how much I should expend.
+
+
+A. Built the algorithm that classifies the expenditures and revenues into the multiple categories:
+Take the CSV as an input, and categorize everything into multiple categories which are already pre-defined.
+The data have 3 different data sources: my checkings account spendings, my credit card spendings, and my wife's spendings.
+The categories are the following possibilities, and each expenditure or revenue can only be of only 1 type:
+    Wire: trasnfer into of out from the accounts. Usually this are really big numbers.
+    Dinning&Activities: Expenditures realted to dinnning out, or any Zelle transfer from another contact with small amounts. If it is over $1,0000 it should be other category.
+    Living expenses: Expenses or revenue related to electricity, laundry, 
+    Housing: expenses or revenue related to renting our current house.
+    Car: car Expenses or revenue as getting maintainance to the car, or buying the car.
+    Groceries: Expenses related to supermarket and groceries
+    Pack: Expenses or revenue related to buying furniture at the beggining of the
+    Online Shopping: expenses or revenue used to buy things Online (Amazon, Netflix, subscriptions, etc)
+    Parking: Expenses related to parking 
+    Car Gasoline / Transportation: expenses related to buying gasoline, Uber, Waymo or any other means of transportation
+    Clothing and Accessories: Mostly on Online Shopping
+    Car Insurance: Expenses related to the insurance of the car.
+    Trips: expenses related to trips or vacations
+    Tuition: expenses related to the tuition of my MBA.
+    Miscellaneous: expenses that do not fall into other categories
+    Credit Card - Pedro: expense related to paying the debt of the Credit Card of mine
+    Credit Card - Renatta: expense related to paying the debt of the Credit Card of my wife
+    Renatta's Work: revenues related to work my wife has done so far
+    Renatta's Studies: expense related to the studies renatta has conducted in the US
+    Renatta's Expenses: expense that are categorize only and exclusively to renatta that are extraordinary
+    Apartment Rent: revenue we receive from renting our apartment
+    Renatta's Savings: wires that renatta has send 
+    Amazon Stipend: stipend I receive from Amazon to relocate
+    Insurance: Expenses related to insurance outside of car insurances
+    Pedro's Internship: salary I got from my internship at Amazon
+
+
+B. Building an interface that is able to take new CSV files into the data, and categories those new expenses:
+After the code for the categorization, i need a way to feed the data into the model
+
+C. After all the things done before I should be able to make Data Analysis however I want.

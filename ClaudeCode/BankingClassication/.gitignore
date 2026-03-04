@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Data & DB (large/generated files)
+data/transactions.db
+data/training_data.csv
+data/model/
+
+# Excel source data (sensitive)
+*.xlsx
+
+# macOS
+.DS_Store
+
+# Streamlit
+.streamlit/
+
+# Env
+.env
+*.env
