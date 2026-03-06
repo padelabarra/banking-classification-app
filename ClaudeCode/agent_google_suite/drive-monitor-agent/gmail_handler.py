@@ -55,13 +55,12 @@ def _apply_action(service, msg_id: str, action: str):
 
     elif action == "spam":
         _retry(
-            service.users().messages().modify(
+            service.users().messages().trash(
                 userId="me",
                 id=msg_id,
-                body={"addLabelIds": ["SPAM"], "removeLabelIds": ["INBOX"]},
             ).execute
         )
-        logger.info(f"  → SPAM message {msg_id}")
+        logger.info(f"  → TRASHED (spam) message {msg_id}")
 
     elif action == "important":
         _retry(

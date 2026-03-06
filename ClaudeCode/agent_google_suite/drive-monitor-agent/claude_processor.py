@@ -1,4 +1,5 @@
 # drive-monitor-agent/claude_processor.py
+import json
 import logging
 import anthropic
 
@@ -34,7 +35,6 @@ Responde en formato JSON exacto:
             max_tokens=512,
             messages=[{"role": "user", "content": prompt}],
         )
-        import json
         text = response.content[0].text.strip()
         # Extract JSON even if there's surrounding text
         start = text.find("{")
@@ -72,7 +72,6 @@ Responde en formato JSON exacto:
             max_tokens=256,
             messages=[{"role": "user", "content": prompt}],
         )
-        import json
         text = response.content[0].text.strip()
         start = text.find("{")
         end = text.rfind("}") + 1

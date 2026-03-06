@@ -111,17 +111,26 @@ def check_drive(creds, state: dict) -> str | None:
         query = (
             f"modifiedTime > '{last_check}' "
             f"and trashed = false "
-            f"and '{folder_id}' not in parents"
+            f"and '{folder_id}' not in parents "
+            f"and id != '{folder_id}'"
         )
-        results = _retry(
-            service.files().list(
+        all_files = []
+        page_token = None
+        while True:
+            list_kwargs = dict(
                 q=query,
-                fields="files(id, name, mimeType, modifiedTime)",
+                fields="nextPageToken, files(id, name, mimeType, modifiedTime)",
                 pageSize=50,
                 orderBy="modifiedTime desc",
-            ).execute
-        )
-        files = results.get("files", [])
+            )
+            if page_token:
+                list_kwargs["pageToken"] = page_token
+            results = _retry(service.files().list(**list_kwargs).execute)
+            all_files.extend(results.get("files", []))
+            page_token = results.get("nextPageToken")
+            if not page_token:
+                break
+        files = all_files
         logger.info(f"Found {len(files)} new/modified files")
 
         if not files:

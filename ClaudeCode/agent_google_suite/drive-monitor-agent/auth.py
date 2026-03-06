@@ -12,8 +12,9 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.modify",
 ]
 
-CREDENTIALS_FILE = os.path.join(os.path.dirname(__file__), "..", "oauth_credentials.json")
-TOKEN_FILE = os.path.join(os.path.dirname(__file__), "token.json")
+_HERE = os.path.dirname(os.path.abspath(__file__))
+CREDENTIALS_FILE = os.path.join(_HERE, "..", "oauth_credentials.json")
+TOKEN_FILE = os.path.join(_HERE, "token.json")
 
 
 def get_credentials() -> Credentials:
@@ -32,7 +33,8 @@ def get_credentials() -> Credentials:
             flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
             creds = flow.run_local_server(port=0)
 
-        with open(TOKEN_FILE, "w") as f:
+        fd = os.open(TOKEN_FILE, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w") as f:
             f.write(creds.to_json())
         logger.info("Token saved to token.json")
 

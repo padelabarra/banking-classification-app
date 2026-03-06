@@ -64,12 +64,12 @@ def main():
     logger.info("Drive + Gmail Monitor Agent starting...")
     logger.info("=" * 60)
 
-    creds = auth.get_credentials()
     logger.info("OAuth authentication successful")
-
     state = load_state()
 
     while True:
+        creds = auth.get_credentials()  # refresh token if expired
+
         # ── Gmail check (every 1h) ──────────────────────────────────────────
         if seconds_since(state.get("last_gmail_check")) >= GMAIL_INTERVAL_SECONDS:
             logger.info("--- Gmail check started ---")
