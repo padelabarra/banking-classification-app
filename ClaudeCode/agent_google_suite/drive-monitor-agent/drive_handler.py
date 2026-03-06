@@ -111,8 +111,7 @@ def check_drive(creds, state: dict) -> str | None:
         query = (
             f"modifiedTime > '{last_check}' "
             f"and trashed = false "
-            f"and '{folder_id}' not in parents "
-            f"and id != '{folder_id}'"
+            f"and '{folder_id}' not in parents"
         )
         all_files = []
         page_token = None
