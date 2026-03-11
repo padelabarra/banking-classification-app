@@ -107,3 +107,76 @@ def cumulative_net(df: pd.DataFrame) -> pd.DataFrame:
     summary = summary.sort_values(["year", "month"])
     summary["cumulative_net"] = summary["net"].cumsum()
     return summary
+
+
+import pathlib as _pathlib
+
+_EXCEL_PATH = _pathlib.Path(__file__).parent.parent / "202406_Presupuesto_MBA.xlsx"
+
+_TRACKER_RECURRING_ROWS = {
+    7:  "Car Gasoline / Transportation",
+    8:  "Car Insurance",
+    9:  "Dinning&Activities",
+    10: "Groceries",
+    11: "Miscellaneous",
+    12: "Online Shopping",
+    13: "Parking",
+    14: "Housing",
+    15: "Living Expenses",
+}
+
+_TRACKER_BIG_TICKET_ROWS = {
+    2: "Car",
+    3: "Pack",
+    4: "Trips",
+    5: "Tuition",
+}
+
+
+def load_budget_defaults() -> dict[str, float]:
+    """
+    Load monthly budget defaults from the Excel Tracker sheet.
+
+    For recurring categories (rows 7-15): col C is the historical monthly average.
+    For big-ticket categories (rows 2-5): col C is the total sum, divided by 12.
+    Returns an empty dict if the Excel file cannot be read.
+    """
+    import openpyxl
+
+    try:
+        wb = openpyxl.load_workbook(str(_EXCEL_PATH), data_only=True)
+        ws = wb["Tracker"]
+    except Exception:
+        return {}
+
+    budgets: dict[str, float] = {}
+
+    for row_num, category in _TRACKER_RECURRING_ROWS.items():
+        val = ws.cell(row=row_num, column=3).value  # col C
+        if val is not None:
+            budgets[category] = abs(float(val))
+
+    for row_num, category in _TRACKER_BIG_TICKET_ROWS.items():
+        val = ws.cell(row=row_num, column=3).value  # col C
+        if val is not None:
+            budgets[category] = abs(float(val)) / 12.0
+
+    return budgets
+
+
+def monthly_actuals_by_category(df: pd.DataFrame, year: int, month: int) -> dict[str, float]:
+    """
+    Sum of absolute expense amounts per category for a given year/month.
+
+    Returns: {category: total_spent (positive float)}
+    """
+    mask = (
+        (df["activity"] == "Expense") &
+        (pd.to_numeric(df["year"], errors="coerce") == year) &
+        (pd.to_numeric(df["month"], errors="coerce") == month)
+    )
+    sub = df[mask].copy()
+    if sub.empty:
+        return {}
+    sub["amount"] = pd.to_numeric(sub["amount"], errors="coerce").fillna(0).abs()
+    return sub.groupby("category")["amount"].sum().to_dict()
