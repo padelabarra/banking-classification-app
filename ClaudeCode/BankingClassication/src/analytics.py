@@ -153,13 +153,11 @@ def load_budget_defaults() -> dict[str, float]:
 
     for row_num, category in _TRACKER_RECURRING_ROWS.items():
         val = ws.cell(row=row_num, column=3).value  # col C
-        if val is not None:
-            budgets[category] = abs(float(val))
+        budgets[category] = abs(float(val)) if val is not None else 0.0
 
     for row_num, category in _TRACKER_BIG_TICKET_ROWS.items():
         val = ws.cell(row=row_num, column=3).value  # col C
-        if val is not None:
-            budgets[category] = abs(float(val)) / 12.0
+        budgets[category] = abs(float(val)) / 12.0 if val is not None else 0.0
 
     return budgets
 

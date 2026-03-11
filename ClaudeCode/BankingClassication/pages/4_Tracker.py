@@ -57,6 +57,10 @@ st.subheader(f"{MONTH_NAMES[sel_month]} {sel_year}")
 # ── Budget defaults (from Excel col C) ────────────────────────────────────────
 budget_defaults = load_budget_defaults()
 
+if not budget_defaults:
+    st.error("Could not read budget defaults from Excel. Check that '202406_Presupuesto_MBA.xlsx' exists with a 'Tracker' sheet.")
+    st.stop()
+
 # Category display order: big-ticket first, then recurring alphabetically
 BIG_TICKET = ["Car", "Pack", "Trips", "Tuition"]
 RECURRING = sorted([c for c in budget_defaults if c not in BIG_TICKET])
@@ -120,12 +124,6 @@ st.divider()
 
 # ── Comparison table ───────────────────────────────────────────────────────────
 st.subheader("Category Breakdown")
-
-
-def color_variance(val):
-    if val >= 0:
-        return "color: #2ecc71; font-weight: bold"
-    return "color: #e74c3c; font-weight: bold"
 
 
 display_df = tracker_df.copy()
