@@ -42,13 +42,14 @@ def classify(description: str, amount: float, source: str) -> dict:
     # 1. Rule-based
     rule_activity, rule_category, rule_confidence = rule_classify(description, amount, source)
     if rule_confidence >= 0.85:
-        return {
+        result = {
             "activity": rule_activity,
             "category": rule_category,
             "confidence": rule_confidence,
             "method": "rule",
             "needs_review": False,
         }
+        return _enforce_sign(result, amount)
 
     # 2. ML
     ml = _get_ml()
@@ -56,46 +57,54 @@ def classify(description: str, amount: float, source: str) -> dict:
         ml_activity, ml_category, ml_confidence = ml.predict(description, amount, source)
 
         if ml_confidence >= ML_CONFIDENCE_THRESHOLD:
-            # Fix: if rule matched category but returned None activity, trust ML for activity.
-            # Only override with rule activity when it's explicitly set (not None).
             final_activity = rule_activity if rule_activity is not None else ml_activity
-            return {
+            result = {
                 "activity": final_activity,
                 "category": ml_category,
                 "confidence": ml_confidence,
                 "method": "ml",
                 "needs_review": False,
             }
+            return _enforce_sign(result, amount)
 
         # Neither fully confident — pick the better one and flag for review
         if ml_confidence > rule_confidence:
-            return {
+            result = {
                 "activity": ml_activity,
                 "category": ml_category,
                 "confidence": ml_confidence,
                 "method": "ml",
                 "needs_review": True,
             }
+            return _enforce_sign(result, amount)
 
     # 3. Use partial rule match if available
     if rule_category:
-        return {
+        result = {
             "activity": rule_activity,
             "category": rule_category,
             "confidence": rule_confidence,
             "method": "rule",
             "needs_review": True,
         }
+        return _enforce_sign(result, amount)
 
     # 4. Absolute fallback
-    inferred_activity = "Revenue" if amount > 0 else "Expense"
     return {
-        "activity": inferred_activity,
+        "activity": "Revenue" if amount > 0 else "Expense",
         "category": "Miscellaneous",
         "confidence": 0.0,
         "method": "fallback",
         "needs_review": True,
     }
+
+
+def _enforce_sign(result: dict, amount: float) -> dict:
+    """Negative amounts are always Expense — no classifier can override this."""
+    if amount < 0 and result["activity"] == "Revenue":
+        result["activity"] = "Expense"
+        result["needs_review"] = True
+    return result
 
 
 def classify_dataframe(df):
