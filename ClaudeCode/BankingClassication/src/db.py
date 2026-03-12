@@ -109,6 +109,11 @@ def upsert_transactions(df: pd.DataFrame, path: pathlib.Path = DB_PATH) -> dict:
         amount = float(row.get("amount", 0))
         source = str(row.get("source", ""))
         activity = str(row.get("activity", ""))
+        # Hard rule: negative amount is always Expense, positive is always Revenue
+        if amount < 0:
+            activity = "Expense"
+        elif amount > 0 and activity not in ("Revenue", "Expense"):
+            activity = "Revenue"
         category = str(row.get("category", "Miscellaneous"))
         manually_reviewed = int(row.get("manually_reviewed", 0))
 
