@@ -9,7 +9,6 @@ dist/
 build/
 
 # Data & DB (large/generated files)
-data/transactions.db
 data/training_data.csv
 data/model/
 
@@ -20,7 +19,7 @@ data/model/
 .DS_Store
 
 # Streamlit
-.streamlit/
+.streamlit/secrets.toml
 
 # Env
 .env
