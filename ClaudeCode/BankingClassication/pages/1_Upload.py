@@ -18,6 +18,14 @@ from src.db import upsert_transactions, check_duplicates
 st.set_page_config(page_title="Upload Transactions", page_icon="📤", layout="wide")
 st.title("📤 Upload & Classify Transactions")
 
+import os as _os
+if _os.environ.get("STREAMLIT_SHARING_MODE") or _os.environ.get("HOME", "").startswith("/home/appuser"):
+    st.info(
+        "☁️ **Running in cloud demo mode.** Uploads are processed and classified "
+        "but not saved permanently — the database resets on each deployment.",
+        icon="ℹ️",
+    )
+
 # ── Row status constants ─────────────────────────────────────────────────────
 S_DUPLICATE = "🔁 Already in DB"
 S_REVIEW    = "⚠️ Needs Review"
