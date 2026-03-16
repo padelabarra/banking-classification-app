@@ -5,7 +5,6 @@ Run with: streamlit run app.py
 import pathlib
 import sys
 
-# Make sure src/ is on the path when running from project root
 ROOT = pathlib.Path(__file__).parent
 sys.path.insert(0, str(ROOT))
 
@@ -19,6 +18,40 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+
+def check_password() -> bool:
+    """
+    Password gate using st.secrets.
+    Returns True if the user has entered the correct password.
+    If no secrets.toml exists (local dev without it), bypasses the gate.
+    """
+    try:
+        correct_password = st.secrets["password"]
+    except (FileNotFoundError, KeyError):
+        return True
+
+    if st.session_state.get("password_correct"):
+        return True
+
+    with st.form("login_form"):
+        st.subheader("🔐 Login")
+        password = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Enter")
+
+    if submitted:
+        if password == correct_password:
+            st.session_state["password_correct"] = True
+            st.rerun()
+        else:
+            st.error("Incorrect password.")
+
+    return False
+
+
+if not check_password():
+    st.stop()
+
+# ── App content (only shown after successful login) ───────────────────────────
 st.title("🏦 Banking Classification App")
 st.markdown(
     """
@@ -29,6 +62,7 @@ st.markdown(
     | **1 · Upload** | Upload a BofA CSV, classify transactions, save to DB |
     | **2 · Transactions** | Browse, filter, and edit all stored transactions |
     | **3 · Dashboard** | Charts and monthly analysis |
+    | **4 · Budget Tracker** | Monthly budget vs actual spending |
 
     ---
     **First time?** Run `python train.py` in the project directory to load historical data
@@ -36,7 +70,6 @@ st.markdown(
     """
 )
 
-# Quick DB stats in the main page
 from src.db import get_transactions, init_db, DB_PATH
 
 init_db(DB_PATH)
@@ -51,9 +84,6 @@ if not df.empty:
         if pd.notna(min_date) and pd.notna(max_date) else "N/A"
     )
     col2.metric("Date Range", date_range)
-    col3.metric(
-        "Total Net",
-        f"${df['amount'].sum():,.0f}",
-    )
+    col3.metric("Total Net", f"${df['amount'].sum():,.0f}")
 else:
-    st.info("No transactions in database yet. Run `python train.py` or upload a CSV on the Upload page.")
+    st.info("No transactions yet.")
